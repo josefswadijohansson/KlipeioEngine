@@ -9,7 +9,8 @@ namespace KlipeioEngine
 {
     public class Game : GameWindow
     {
-        Shader _shader;
+        private Shader _shader;
+        private Camera camera;
 
         #region buffer objects
 
@@ -21,14 +22,59 @@ namespace KlipeioEngine
 
         #region  rectangle data
 
-        float[] _vertices = {
+        #region cube data
+        
+        private float[] _vertices = 
+        {
+            -0.5f, -0.5f, -0.5f,
+             0.5f, -0.5f, -0.5f,
+             0.5f,  0.5f, -0.5f,
+            -0.5f,  0.5f, -0.5f,
+            -0.5f, -0.5f,  0.5f,
+             0.5f, -0.5f,  0.5f,
+             0.5f,  0.5f,  0.5f,
+            -0.5f,  0.5f,  0.5f
+        };
+
+        private uint[] _indices = //8 vertices list
+        {
+            //front face
+            //top triangle
+            0, 1, 2,
+            //bottom triangle
+            2, 3, 0,
+
+            //Right face
+            1, 5, 6,
+            6, 2, 1,
+
+            //Back face
+            5, 4, 7,
+            7, 6, 5,
+
+            //Left face
+            4, 0, 3,
+            3, 7, 4,
+
+            //Bottom face
+            3, 2, 7,
+            7, 6, 2,
+
+            //Top face
+            4, 5, 1,
+            1, 0, 4,
+        };
+
+        #endregion
+
+        float[] vertices = {
             0.5f,  0.5f, 0.0f,  // top right    - 0
             0.5f, -0.5f, 0.0f,  // bottom right - 1
             -0.5f, -0.5f, 0.0f,  // bottom left - 2
             -0.5f,  0.5f, 0.0f   // top left    - 3
         };
 
-        uint[] _indices = 
+        uint[] indices = 
         {  // note that we start from 0!
             0, 1, 3,   // first triangle
             1, 2, 3    // second triangle
@@ -66,12 +112,9 @@ namespace KlipeioEngine
 
         protected override void OnLoad()
         {
-            Vector4 vec = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
-            Matrix4 trans = Matrix4.CreateTranslation(1f, 1f, 0.0f);
-            vec *= trans;
-            Console.WriteLine("{0}, {1}, {2}", vec.X, vec.Y, vec.Z);
-
             base.OnLoad();
+
+            camera = new Camera(new Vector3(0.0f, 0.0f, 3.0f));
 
             //Created the shader program
             _shader = new Shader("vertex.glsl", "fragment.glsl");
@@ -114,13 +157,17 @@ namespace KlipeioEngine
 
             //use the shader program to draw out the relevant data
             _shader.Use();
+
+            GL.Enable(EnableCap.DepthTest);
+
+            CursorState = CursorState.Grabbed;
         }
 
         protected override void OnRenderFrame(FrameEventArgs args)
         {
             GL.ClearColor(0.5f, 0.5f, 1.0f, 1.0f);
 
-            GL.Clear(ClearBufferMask.ColorBufferBit);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             
             //Code goes here.
             _shader.Use();
@@ -132,8 +179,8 @@ namespace KlipeioEngine
             GL.BindVertexArray(_vertexArrayObject);
 
             Matrix4 model = Matrix4.CreateRotationX(MathHelper.DegreesToRadians(-55.0f));
-            Matrix4 view = Matrix4.CreateTranslation(0.0f, 0.0f, -3.0f);
-            Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(45.0f), _windowWidth / _windowHeight, 0.1f, 100.0f);
+            Matrix4 view = camera.GetViewMatrix();
+            Matrix4 projection = camera.GetProjectionMatrix();
 
             _shader.SetMatrix4("model", model);
             _shader.SetMatrix4("view", view);
@@ -155,13 +202,12 @@ namespace KlipeioEngine
             MouseState mouse = MouseState;
             KeyboardState keyboard = KeyboardState;
 
+            camera.Update(keyboard, mouse, args);
+
             if(keyboard.IsKeyPressed(Keys.Escape))
             {
                 Close();
             }
-
-            // Update any game logic here
-            // ...
         }
 
         protected override void OnUnload()

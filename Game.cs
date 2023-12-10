@@ -1,4 +1,5 @@
 using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
@@ -14,16 +15,23 @@ namespace KlipeioEngine
 
         int _vertexBufferObject;
         int _vertexArrayObject;
+        int _elementBufferObject; 
 
         #endregion
 
-        #region  triangle data
+        #region  rectangle data
 
-        float[] _vertices = 
-        {
-            -0.5f, -0.5f, 0.0f, //Bottom-left vertex
-            0.5f, -0.5f, 0.0f, //Bottom-right vertex
-            0.0f,  0.5f, 0.0f  //Top vertex
+        float[] _vertices = {
+            0.5f,  0.5f, 0.0f,  // top right    - 0
+            0.5f, -0.5f, 0.0f,  // bottom right - 1
+            -0.5f, -0.5f, 0.0f,  // bottom left - 2
+            -0.5f,  0.5f, 0.0f   // top left    - 3
+        };
+
+        uint[] _indices = 
+        {  // note that we start from 0!
+            0, 1, 3,   // first triangle
+            1, 2, 3    // second triangle
         };
 
         #endregion
@@ -58,6 +66,11 @@ namespace KlipeioEngine
 
         protected override void OnLoad()
         {
+            Vector4 vec = new Vector4(1.0f, 0.0f, 0.0f, 1.0f);
+            Matrix4 trans = Matrix4.CreateTranslation(1f, 1f, 0.0f);
+            vec *= trans;
+            Console.WriteLine("{0}, {1}, {2}", vec.X, vec.Y, vec.Z);
+
             base.OnLoad();
 
             //Created the shader program
@@ -67,7 +80,10 @@ namespace KlipeioEngine
             _vertexArrayObject = GL.GenVertexArray();   
 
             //Generate a vertex buffer object
-            _vertexBufferObject = GL.GenBuffer();       
+            _vertexBufferObject = GL.GenBuffer();
+
+            //Generate the element array buffer object
+            _elementBufferObject = GL.GenBuffer();
 
             //Bind the vertex array object
             GL.BindVertexArray(_vertexArrayObject);     
@@ -84,9 +100,17 @@ namespace KlipeioEngine
             //then enable location 0
             GL.EnableVertexAttribArray(aPosLocation);
 
+            //Bind the element array buffer object
+            GL.BindBuffer(BufferTarget.ElementArrayBuffer, _elementBufferObject);
+
+            //Pass data to the bound element array buffer object
+            GL.BufferData(BufferTarget.ElementArrayBuffer, _indices.Length*sizeof(uint), _indices, BufferUsageHint.StaticDraw);  
+
             //unbind the vertex buffer object
             GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
 
+            //unbind the element array object
+            //GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
 
             //use the shader program to draw out the relevant data
             _shader.Use();
@@ -100,8 +124,22 @@ namespace KlipeioEngine
             
             //Code goes here.
             _shader.Use();
+
+            int vertexColorLocation = GL.GetUniformLocation(_shader.Handle, "ourColor");
+
+            GL.Uniform4(vertexColorLocation, 1.0f, 0.0f, 0.0f, 1.0f);
+
             GL.BindVertexArray(_vertexArrayObject);
-            GL.DrawArrays(PrimitiveType.Triangles, 0, 3);
+
+            Matrix4 model = Matrix4.CreateRotationX(MathHelper.DegreesToRadians(-55.0f));
+            Matrix4 view = Matrix4.CreateTranslation(0.0f, 0.0f, -3.0f);
+            Matrix4 projection = Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(45.0f), _windowWidth / _windowHeight, 0.1f, 100.0f);
+
+            _shader.SetMatrix4("model", model);
+            _shader.SetMatrix4("view", view);
+            _shader.SetMatrix4("projection", projection);
+
+            GL.DrawElements(PrimitiveType.Triangles, _indices.Length, DrawElementsType.UnsignedInt, 0);
 
             Context.SwapBuffers();
 

@@ -1,4 +1,5 @@
 using OpenTK.Graphics.OpenGL4;
+using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
@@ -9,6 +10,8 @@ namespace KlipeioEngine
     public class Shader : IDisposable
     {
         private int _handle;
+
+        public int Handle { get {return _handle;} }
 
         private bool disposedValue = false;
 
@@ -74,6 +77,22 @@ namespace KlipeioEngine
             return GL.GetAttribLocation(_handle, attribName);
         }
 
+        /// <summary>
+        /// Set a uniform Matrix4 on this shader
+        /// </summary>
+        /// <param name="name">The name of the uniform</param>
+        /// <param name="data">The data to set</param>
+        /// <remarks>
+        ///   <para>
+        ///   The matrix is transposed before being sent to the shader.
+        ///   </para>
+        /// </remarks>
+        public void SetMatrix4(string name, Matrix4 data)
+        {
+            GL.UseProgram(Handle);
+            int uniformLocation = GL.GetUniformLocation(_handle, name);
+            GL.UniformMatrix4(uniformLocation, true, ref data);
+        }
         protected virtual void Dispose(bool disposing)
         {
             if (!disposedValue)

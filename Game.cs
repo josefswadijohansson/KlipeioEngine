@@ -8,6 +8,26 @@ namespace KlipeioEngine
 {
     public class Game : GameWindow
     {
+        Shader _shader;
+
+        #region buffer objects
+
+        int _vertexBufferObject;
+        int _vertexArrayObject;
+
+        #endregion
+
+        #region  triangle data
+
+        float[] _vertices = 
+        {
+            -0.5f, -0.5f, 0.0f, //Bottom-left vertex
+            0.5f, -0.5f, 0.0f, //Bottom-right vertex
+            0.0f,  0.5f, 0.0f  //Top vertex
+        };
+
+        #endregion
+
         private static int _windowWidth;
         private static int _windowHeight;
 
@@ -40,6 +60,36 @@ namespace KlipeioEngine
         {
             base.OnLoad();
 
+            //Created the shader program
+            _shader = new Shader("vertex.glsl", "fragment.glsl");
+
+            //Generate a vertex array object
+            _vertexArrayObject = GL.GenVertexArray();   
+
+            //Generate a vertex buffer object
+            _vertexBufferObject = GL.GenBuffer();       
+
+            //Bind the vertex array object
+            GL.BindVertexArray(_vertexArrayObject);     
+
+            //Bind the vertex buffer object
+            GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObject);
+            //Pass the vertices data to the buffer
+            GL.BufferData(BufferTarget.ArrayBuffer, _vertices.Length * sizeof(float), _vertices, BufferUsageHint.StaticDraw);
+
+            //Retrieve the aPosition location index, that will later be passed to the vertex array object
+            int aPosLocation = _shader.GetAttribLocation("aPosition");
+            //Since i have now bound the vertices data, send the buffer data to the vertex array on location/index 0
+            GL.VertexAttribPointer(aPosLocation, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
+            //then enable location 0
+            GL.EnableVertexAttribArray(aPosLocation);
+
+            //unbind the vertex buffer object
+            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+
+
+            //use the shader program to draw out the relevant data
+            _shader.Use();
         }
 
         protected override void OnRenderFrame(FrameEventArgs args)
@@ -47,10 +97,15 @@ namespace KlipeioEngine
             GL.ClearColor(0.5f, 0.5f, 1.0f, 1.0f);
 
             GL.Clear(ClearBufferMask.ColorBufferBit);
-
-             //Code goes here.
+            
+            //Code goes here.
+            _shader.Use();
+            GL.BindVertexArray(_vertexArrayObject);
+            GL.DrawArrays(PrimitiveType.Triangles, 0, 3);
 
             Context.SwapBuffers();
+
+            GL.BindVertexArray(0);
 
             base.OnRenderFrame(args);
         }
@@ -74,7 +129,8 @@ namespace KlipeioEngine
         protected override void OnUnload()
         {
             base.OnUnload();
-
+            GL.DeleteBuffer(_vertexBufferObject);
+            _shader.Dispose();
         }
     }
 }

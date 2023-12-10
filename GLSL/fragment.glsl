@@ -1,10 +1,8 @@
 #version 330 core
-out vec4 FragColor;
 
-in vec2 uv;
+out vec4 FragColor;
 
 void main()
 {
-    // For simplicity, just output UV coordinates as colors
-    FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+    FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
 }

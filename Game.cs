@@ -13,6 +13,7 @@ namespace KlipeioEngine
 
         private Cube _cube1;
         private Cube _cube2;
+        private Sphere _sphere;
 
         private Shader _shader;
         private Camera camera;
@@ -60,10 +61,13 @@ namespace KlipeioEngine
             listOfGameObjects.Add();*/
 
             _cube1 = new Cube(_shader); //TODO: Make so the shader is already accessible in the cube.
-            _cube1._mesh.Color = Color4.Blue;
+            _cube1.mesh.Color = Color4.Blue;
             _cube2 = new Cube(_shader);
-            _cube2._mesh.Color = Color4.Red;
+            _cube2.mesh.Color = Color4.Red;
             _cube2.SetPosition(new Vector3(1,0,0));
+
+            _sphere = new Sphere(_shader);
+            _sphere.SetPosition(new Vector3(-1, 0, 0));
             
             GL.Enable(EnableCap.DepthTest);
 
@@ -83,6 +87,7 @@ namespace KlipeioEngine
 
             _cube1.Draw(view, projection);
             _cube2.Draw(view, projection);
+            _sphere.Draw(view, projection);
 
             Context.SwapBuffers();
 
@@ -121,6 +126,7 @@ namespace KlipeioEngine
             //TODO: Below needs to be made so i dispose all objects in the world.
             _cube1.Dispose();
             _cube2.Dispose();
+            _sphere.Dispose();
         }
     }
 }

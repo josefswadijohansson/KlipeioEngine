@@ -79,5 +79,11 @@ namespace KlipeioEngine
             GL.BindVertexArray(0);
         }
 
+        public void Dispose()
+        {
+            GL.DeleteBuffer(_vertexBufferObject);
+            GL.DeleteBuffer(_elementBufferObject);
+            _shader.Dispose();
+        }
     }
 }

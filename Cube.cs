@@ -11,7 +11,7 @@ namespace KlipeioEngine
 
     public class Cube : GameObject
     {
-        public Mesh _mesh;
+        private Mesh _mesh;
 
         #region cube data
         private readonly float[] _vertices = 
@@ -57,49 +57,16 @@ namespace KlipeioEngine
 
         #endregion
 
-        #region buffer objects
-
-        private int _vertexArrayObject;
-        private int _vertexBufferObject;
-        private int _elementBufferObject;
-
-        #endregion
-        
-        private Shader _shader;
-
-        public Color4 color
-        {
-            get; set;
-        } 
+        public Mesh mesh 
+        { 
+            get {return _mesh;}
+        }
 
         public Cube(Shader shader)
         {
-            _shader = shader;
+            //_shader = shader;
 
             _mesh = new Mesh(_vertices, _indices, shader);
-            // Initialize buffers and shaders
-            //InitializeBuffers();
-        }
-
-        private void InitializeBuffers()
-        {
-            _vertexArrayObject = GL.GenVertexArray();
-            GL.BindVertexArray(_vertexArrayObject);
-
-            _vertexBufferObject = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObject);
-            GL.BufferData(BufferTarget.ArrayBuffer, _vertices.Length * sizeof(float), _vertices, BufferUsageHint.StaticDraw);
-
-            int aPosLocation = _shader.GetAttribLocation("aPosition");
-            GL.VertexAttribPointer(aPosLocation, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
-            GL.EnableVertexAttribArray(aPosLocation);
-
-            _elementBufferObject = GL.GenBuffer();
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, _elementBufferObject);
-            GL.BufferData(BufferTarget.ElementArrayBuffer, _indices.Length * sizeof(uint), _indices, BufferUsageHint.StaticDraw);
-
-            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-            GL.BindVertexArray(0);
         }
 
         public void Draw(Matrix4 view, Matrix4 projection)
@@ -132,9 +99,8 @@ namespace KlipeioEngine
 
         public void Dispose()
         {
-            GL.DeleteBuffer(_vertexBufferObject);
-            GL.DeleteBuffer(_elementBufferObject);
-            _shader.Dispose();
+            _mesh.Dispose();
+            //_shader.Dispose();
         }
 
     }

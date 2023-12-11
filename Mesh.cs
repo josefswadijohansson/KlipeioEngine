@@ -7,7 +7,7 @@ using System;
 
 namespace KlipeioEngine
 {
-    public class Mesh : GameObject
+    public class Mesh
     {
         private Shader _shader;
         private Color4 _color;
@@ -65,10 +65,6 @@ namespace KlipeioEngine
             GL.Uniform4(vertexColorLocation, _color);
 
             GL.BindVertexArray(_vertexArrayObject);
-            
-            /*Matrix4 model = Matrix4.CreateScale(Scale) 
-                                * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(Rotation.X)) * Matrix4.CreateRotationY(MathHelper.DegreesToRadians(Rotation.Y)) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(Rotation.Z)) 
-                                * Matrix4.CreateTranslation(Position);*/
 
             _shader.SetMatrix4("model", model);
             _shader.SetMatrix4("view", view);

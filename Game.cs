@@ -55,19 +55,54 @@ namespace KlipeioEngine
 
             listOfGameObjects = new List<GameObject>();
 
-            /*Cube newCube = new Cube(_shader);
-            newCube._mesh.Color = Color4.Blue;
+            for(int i = 0; i < 10; i++)
+            {
+                GameObject newCube = new GameObject(_shader, Cube._vertices, Cube._indices);
+                newCube.SetPosition(new Vector3(i, 0, 0));
 
-            listOfGameObjects.Add();*/
+                if(i % 2 == 0)
+                {
+                    newCube.mesh.Color = Color4.Blue;
 
-            _cube1 = new Cube(_shader); //TODO: Make so the shader is already accessible in the cube.
+                    listOfGameObjects.Add(newCube);
+                }
+                else 
+                {
+                    newCube.mesh.Color = Color4.Red;
+
+                    listOfGameObjects.Add(newCube);
+                }
+            }
+
+            for(int i = 0; i < 10; i++)
+            {
+                Sphere.GenerateSphere(1.0f, 8, out float[] vertices, out uint[] indices);
+                GameObject newSphere = new GameObject(_shader, vertices, indices);
+                newSphere.SetPosition(new Vector3(i, 0, 2));
+
+                if(i % 2 == 0)
+                {
+                    newSphere.mesh.Color = Color4.Blue;
+
+                    listOfGameObjects.Add(newSphere);
+                }
+                else 
+                {
+                    newSphere.mesh.Color = Color4.Red;
+
+                    listOfGameObjects.Add(newSphere);
+                }
+            }
+
+            
+            /*_cube1 = new Cube(_shader); //TODO: Make so the shader is already accessible in the cube.
             _cube1.mesh.Color = Color4.Blue;
             _cube2 = new Cube(_shader);
             _cube2.mesh.Color = Color4.Red;
             _cube2.SetPosition(new Vector3(1,0,0));
 
             _sphere = new Sphere(_shader);
-            _sphere.SetPosition(new Vector3(-1, 0, 0));
+            _sphere.SetPosition(new Vector3(-1, 0, 0));*/
             
             GL.Enable(EnableCap.DepthTest);
 
@@ -85,9 +120,10 @@ namespace KlipeioEngine
             Matrix4 view = camera.GetViewMatrix();
             Matrix4 projection = camera.GetProjectionMatrix();
 
-            _cube1.Draw(view, projection);
-            _cube2.Draw(view, projection);
-            _sphere.Draw(view, projection);
+            foreach(GameObject gameObject in listOfGameObjects)
+            {
+                gameObject.Draw(view, projection);
+            }
 
             Context.SwapBuffers();
 
@@ -110,7 +146,7 @@ namespace KlipeioEngine
 
             if(keyboard.IsKeyPressed(Keys.F1))
             {
-                _cube1.SetEnabled(false);
+                //_cube1.SetEnabled(false);
             }
 
             //_cube.Translate(new Vector3(0.0f, 0.0f, 0.00001f));
@@ -124,9 +160,17 @@ namespace KlipeioEngine
             _shader.Dispose();
 
             //TODO: Below needs to be made so i dispose all objects in the world.
-            _cube1.Dispose();
-            _cube2.Dispose();
-            _sphere.Dispose();
+            foreach(GameObject gameObject in listOfGameObjects)
+            {
+                gameObject.Dispose();
+                
+            }
+
+            listOfGameObjects.Clear();
+
+            //_cube1.Dispose();
+            //_cube2.Dispose();
+            //_sphere.Dispose();
         }
     }
 }

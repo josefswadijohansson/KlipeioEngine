@@ -9,12 +9,12 @@ namespace KlipeioEngine
 {
     //FIXME: Add so it instead is a general object class, so you can universally create whatever object(Sphere, hexagon, cube, cylinder, etc) and all of these properties will follow
 
-    public class Cube : GameObject
+    public class Cube
     {
         private Mesh _mesh;
 
         #region cube data
-        private readonly float[] _vertices = 
+        public static readonly float[] _vertices = 
         {
             -0.5f, -0.5f, -0.5f,
              0.5f, -0.5f, -0.5f,
@@ -26,7 +26,7 @@ namespace KlipeioEngine
             -0.5f,  0.5f,  0.5f
         };
 
-        private readonly uint[] _indices = //8 vertices list
+        public static readonly uint[] _indices = //8 vertices list
         {
             //front face
             //top triangle
@@ -66,10 +66,10 @@ namespace KlipeioEngine
         {
             //_shader = shader;
 
-            _mesh = new Mesh(_vertices, _indices, shader);
+            //_mesh = new Mesh(_vertices, _indices, shader);
         }
 
-        public void Draw(Matrix4 view, Matrix4 projection)
+        /*public void Draw(Matrix4 view, Matrix4 projection)
         {
             if(this.Enabled == true)
             {
@@ -80,7 +80,7 @@ namespace KlipeioEngine
 
                 GL.Uniform4(vertexColorLocation, color);
 
-                GL.BindVertexArray(_vertexArrayObject);*/
+                GL.BindVertexArray(_vertexArrayObject);
                 
                 Matrix4 model = Matrix4.CreateScale(Scale) 
                                     * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(Rotation.X)) * Matrix4.CreateRotationY(MathHelper.DegreesToRadians(Rotation.Y)) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(Rotation.Z)) 
@@ -92,16 +92,10 @@ namespace KlipeioEngine
 
                 GL.DrawElements(PrimitiveType.Triangles, _indices.Length, DrawElementsType.UnsignedInt, 0);
 
-                GL.BindVertexArray(0);*/
-                _mesh.Draw(model, view, projection);
+                GL.BindVertexArray(0);
+                //_mesh.Draw(model, view, projection);
             }
         }
-
-        public void Dispose()
-        {
-            _mesh.Dispose();
-            //_shader.Dispose();
-        }
-
+        */
     }
 }

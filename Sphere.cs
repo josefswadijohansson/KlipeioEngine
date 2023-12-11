@@ -7,7 +7,7 @@ using System;
 
 namespace KlipeioEngine
 {
-    public class Sphere : GameObject
+    public class Sphere
     {
         private Mesh _mesh;
 
@@ -21,7 +21,7 @@ namespace KlipeioEngine
             _mesh = new Mesh(_vertices, _indices, shader);
         }
 
-        public void Draw(Matrix4 view, Matrix4 projection)
+        /*public void Draw(Matrix4 view, Matrix4 projection)
         {
             if(this.Enabled == true)
             {
@@ -32,7 +32,7 @@ namespace KlipeioEngine
 
                 _mesh.Draw(model, view, projection);
             }
-        }
+        }*/
 
         public static void GenerateSphere(float radius, int segments, out float[] vertices, out uint[] indices)
         {
@@ -74,10 +74,5 @@ namespace KlipeioEngine
             }
         }
 
-        public void Dispose()
-        {
-            _mesh.Dispose();
-            //_shader.Dispose();
-        }
     }
 }

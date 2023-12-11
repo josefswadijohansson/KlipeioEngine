@@ -9,6 +9,9 @@ namespace KlipeioEngine
 {
     public class Game : GameWindow
     {
+        private Cube _cube1;
+        private Cube _cube2;
+
         private Shader _shader;
         private Camera camera;
 
@@ -20,9 +23,7 @@ namespace KlipeioEngine
 
         #endregion
 
-        #region  rectangle data
-
-        #region cube data
+        /*#region cube data
         
         private float[] _vertices = 
         {
@@ -65,22 +66,7 @@ namespace KlipeioEngine
             1, 0, 4,
         };
 
-        #endregion
-
-        float[] vertices = {
-            0.5f,  0.5f, 0.0f,  // top right    - 0
-            0.5f, -0.5f, 0.0f,  // bottom right - 1
-            -0.5f, -0.5f, 0.0f,  // bottom left - 2
-            -0.5f,  0.5f, 0.0f   // top left    - 3
-        };
-
-        uint[] indices = 
-        {  // note that we start from 0!
-            0, 1, 3,   // first triangle
-            1, 2, 3    // second triangle
-        };
-
-        #endregion
+        #endregion*/
 
         private static int _windowWidth;
         private static int _windowHeight;
@@ -115,9 +101,16 @@ namespace KlipeioEngine
             base.OnLoad();
 
             camera = new Camera(new Vector3(0.0f, 0.0f, 3.0f));
-
-            //Created the shader program
             _shader = new Shader("vertex.glsl", "fragment.glsl");
+
+            _cube1 = new Cube(_shader); //TODO: Make so the shader is already accessible in the cube.
+            _cube1.color = Color4.Blue;
+            _cube2 = new Cube(_shader);
+            _cube2.color = Color4.Red;
+            _cube2.SetPosition(new Vector3(1,0,0));
+            
+            //Created the shader program
+            /*
 
             //Generate a vertex array object
             _vertexArrayObject = GL.GenVertexArray();   
@@ -156,7 +149,7 @@ namespace KlipeioEngine
             //GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
 
             //use the shader program to draw out the relevant data
-            _shader.Use();
+            _shader.Use();*/
 
             GL.Enable(EnableCap.DepthTest);
 
@@ -172,21 +165,23 @@ namespace KlipeioEngine
             //Code goes here.
             _shader.Use();
 
-            int vertexColorLocation = GL.GetUniformLocation(_shader.Handle, "ourColor");
+            //int vertexColorLocation = GL.GetUniformLocation(_shader.Handle, "ourColor");
 
-            GL.Uniform4(vertexColorLocation, 1.0f, 0.0f, 0.0f, 1.0f);
+            //GL.Uniform4(vertexColorLocation, 1.0f, 0.0f, 0.0f, 1.0f);
 
-            GL.BindVertexArray(_vertexArrayObject);
+            //GL.BindVertexArray(_vertexArrayObject);
 
-            Matrix4 model = Matrix4.CreateRotationX(MathHelper.DegreesToRadians(-55.0f));
+            Matrix4 model = Matrix4.Identity;
             Matrix4 view = camera.GetViewMatrix();
             Matrix4 projection = camera.GetProjectionMatrix();
 
-            _shader.SetMatrix4("model", model);
-            _shader.SetMatrix4("view", view);
-            _shader.SetMatrix4("projection", projection);
+            //_shader.SetMatrix4("model", model);
+            //_shader.SetMatrix4("view", view);
+            //_shader.SetMatrix4("projection", projection);
 
-            GL.DrawElements(PrimitiveType.Triangles, _indices.Length, DrawElementsType.UnsignedInt, 0);
+            //GL.DrawElements(PrimitiveType.Triangles, _indices.Length, DrawElementsType.UnsignedInt, 0);
+            _cube1.Draw(model, view, projection);
+            _cube2.Draw(model, view, projection);
 
             Context.SwapBuffers();
 
@@ -208,6 +203,10 @@ namespace KlipeioEngine
             {
                 Close();
             }
+
+            //_cube.Translate(new Vector3(0.0f, 0.0f, 0.00001f));
+            //_cube.SetRotation(_cube.Rotation + new Vector3(0.0f, 0.0f, 0.01f));
+            //_cube.SetScale(_cube.Scale + Vector3.One * 0.0001f);
         }
 
         protected override void OnUnload()
@@ -215,6 +214,7 @@ namespace KlipeioEngine
             base.OnUnload();
             GL.DeleteBuffer(_vertexBufferObject);
             _shader.Dispose();
+            _cube1.Dispose();
         }
     }
 }

@@ -12,6 +12,9 @@ namespace KlipeioEngine
     {
         private static List<GameObject> _listOfGameObjects = new List<GameObject>();
 
+        private double _totalTime = 0.0;
+        private int _frameCount = 0;
+
         private Shader _shader;
         private Camera camera;
 
@@ -56,13 +59,13 @@ namespace KlipeioEngine
 
             int index = 0;
 
-            for(int x = 0; x < 100; x++)
+            for(int x = 0; x < 200; x++)
             {
-                for(int y = 0; y < 100; y++)
+                for(int y = 0; y < 200; y++)
                 {
                     Color4 theColor = Color4.Black;
                 
-                    if(index % 2 == 0)
+                    if((x / 1 + y / 1) % 2 == 0)
                     {
                         theColor = Color4.Blue;
                     }
@@ -71,7 +74,7 @@ namespace KlipeioEngine
                         theColor = Color4.Red;
                     }
 
-                    GameObject newCube = new GameObject(_shader, Cube._vertices, theColor, Cube._indices);
+                    GameObject newCube = new GameObject(_shader, Cube._vertices, theColor, Cube._indices);  //FIXME: IDK This uses a lot of data, maybe instead just make all vertices, indices and color data here.
                     newCube.SetPosition(new Vector3(x, 0, y));
 
                     temp.Add(newCube);
@@ -79,50 +82,10 @@ namespace KlipeioEngine
                 }
             }
 
-            /*for(int i = 0; i < 10000; i++)
-            {
-                Color4 theColor = Color4.Black;
-                
-                if(i % 2 == 0)
-                {
-                    theColor = Color4.Blue;
-                }
-                else 
-                {
-                    theColor = Color4.Red;
-                }
-
-                GameObject newCube = new GameObject(_shader, Cube._vertices, theColor, Cube._indices);
-                newCube.SetPosition(new Vector3(i, 0, 0));
-
-                temp.Add(newCube);
-            }*/
-
-            //_listOfGameObjects.AddRange(temp);
-            GameObject combinedGameObject = new GameObject(_shader, Mesh.CombineMeshes(temp.ToArray(), _shader));
+            GameObject combinedGameObject = new GameObject(_shader, Mesh.CombineMeshes(temp.ToArray(), _shader));   
             combinedGameObject.mesh.Color = Color.Blue;
             _listOfGameObjects.Add(combinedGameObject);
 
-            /*for(int i = 0; i < 10; i++)
-            {
-                Sphere.GenerateSphere(1.0f, 8, out float[] vertices, out uint[] indices);
-                GameObject newSphere = new GameObject(_shader, vertices, indices);
-                newSphere.SetPosition(new Vector3(i, 0, 2));
-
-                if(i % 2 == 0)
-                {
-                    newSphere.mesh.Color = Color4.Blue;
-
-                    _listOfGameObjects.Add(newSphere);
-                }
-                else 
-                {
-                    newSphere.mesh.Color = Color4.Red;
-
-                    _listOfGameObjects.Add(newSphere);
-                }
-            }*/
-            
             GL.Enable(EnableCap.DepthTest);
 
             CursorState = CursorState.Grabbed;
@@ -139,10 +102,15 @@ namespace KlipeioEngine
             Matrix4 view = camera.GetViewMatrix();
             Matrix4 projection = camera.GetProjectionMatrix();
 
-            foreach(GameObject gameObject in _listOfGameObjects)
+
+            for(int i = 0; i < _listOfGameObjects.Count; i++)
+            {
+                _listOfGameObjects[i].Draw(view, projection);
+            }
+            /*foreach(GameObject gameObject in _listOfGameObjects)
             {
                 gameObject.Draw(view, projection);
-            }
+            }*/
 
             Context.SwapBuffers();
 
@@ -178,6 +146,34 @@ namespace KlipeioEngine
                 g.Translate(new Vector3(0,-1,0));
                 //DestroyObject(g);
             }
+
+            // FPS calculation
+
+            double deltaTime = args.Time;
+
+            // Update total time and frame count
+            _totalTime += deltaTime;
+            _frameCount++;
+
+            // Update every second (1.0 second interval)
+            if (_totalTime >= 1.0)
+            {
+                // Calculate FPS
+                double fps = _frameCount / _totalTime;
+
+                // Display FPS or use it as needed
+                UpdateWindowTitle($"Klipeio Engine | FPS: {fps:F1} | Memory: {GC.GetTotalMemory(true) / (1024.0 * 1024.0):F2} MB");
+
+                // Reset counters for the next second
+                _totalTime = 0.0;
+                _frameCount = 0;
+            }
+
+            //double fps = 1.0 / args.Time;
+
+            // Update window title with FPS
+            //UpdateWindowTitle($"Klipeio Engine | FPS: {fps:F1}");
+
 
             //_cube.Translate(new Vector3(0.0f, 0.0f, 0.00001f));
             //_cube.SetRotation(_cube.Rotation + new Vector3(0.0f, 0.0f, 0.01f));
@@ -221,6 +217,17 @@ namespace KlipeioEngine
         {
             _listOfGameObjects.RemoveAt((int)gameObject.ID);
             gameObject.Dispose();   //FIXME: Maybe this isn't effienct, find a better way, maybe just dont showcase it
+        }
+
+        private void UpdateWindowTitle(string title)
+        {
+            // Update the window title
+            Title = title;
+        }
+    
+        private void InitializeObject(GameObject gameObject)
+        {
+            _listOfGameObjects.Add(gameObject);
         }
     }
 }

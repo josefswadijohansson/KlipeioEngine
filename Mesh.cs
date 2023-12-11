@@ -33,6 +33,11 @@ namespace KlipeioEngine
             get { return _indices; }
         }
 
+        public float[] ColorData
+        {
+            get { return _colorData;}
+        }
+
         public Color4 Color 
         { 
             get {return _color;}
@@ -118,9 +123,8 @@ namespace KlipeioEngine
         {
             _shader.Use();
 
-            int vertexColorLocation = GL.GetUniformLocation(_shader.Handle, "ourColor");
-
-            GL.Uniform4(vertexColorLocation, _color);
+            //int vertexColorLocation = GL.GetUniformLocation(_shader.Handle, "ourColor");
+            //GL.Uniform4(vertexColorLocation, _color);
 
             GL.BindVertexArray(_vertexArrayObject);
 
@@ -137,7 +141,14 @@ namespace KlipeioEngine
         {
             GL.DeleteBuffer(_vertexBufferObject);
             GL.DeleteBuffer(_elementBufferObject);
+            GL.DeleteBuffer(_vertexColorObject);
             _shader.Dispose();
+
+            _vertices = new float[0];
+            _indices = new uint[0];
+            _colorData = new float[0];
+
+            _shader = null;
         }
     
         public static Mesh CombineMeshes(GameObject[] gameObjects, Shader shader)
@@ -181,6 +192,8 @@ namespace KlipeioEngine
             float[] combinedVertices = vertices.ToArray();
             uint[] combinedIndices = indices.ToArray();
             
+            //return DeduplicateMesh(new Mesh(combinedVertices, combinedIndices, colorData.ToArray(), shader), shader);
+
             return new Mesh(combinedVertices, combinedIndices, colorData.ToArray(), shader);
         }
 
@@ -201,6 +214,56 @@ namespace KlipeioEngine
             }
 
             _colorData = colorData.ToArray();
+        }
+        
+        public static Mesh DeduplicateMesh(Mesh mesh, Shader shader)
+        {
+            Dictionary<Vector3, uint> uniqueVertices = new Dictionary<Vector3, uint>();
+
+            List<float> deduplicatedVertices = new List<float>();
+            List<uint> deduplicatedIndices = new List<uint>();
+            List<float> deduplicatedColorData = new List<float>();
+
+            int verticesCount = mesh.Vertices.Length;
+            int indicesCount = mesh.Vertices.Length;
+
+            float[] vertices = mesh.Vertices;
+            uint[] indices = mesh.Indices;
+            float[] colorData = mesh.ColorData;
+
+            for(int i = 0; i < indices.Length; i++)
+            {
+                float vertexX = vertices[indices[i] * 3];
+                float vertexY = vertices[indices[i] * 3 + 1];
+                float vertexZ = vertices[indices[i] * 3 + 2];
+
+                float colorR = colorData[indices[i] * 3];
+                float colorG = colorData[indices[i] * 3 + 1];
+                float colorB = colorData[indices[i] * 3 + 2];
+
+                if (!uniqueVertices.TryGetValue(new Vector3(vertexX, vertexY, vertexZ), out uint newIndex))
+                {
+                    newIndex = (uint)(deduplicatedVertices.Count / 3);
+                    uniqueVertices.Add(new Vector3(vertexX, vertexY, vertexZ), newIndex);
+
+                    deduplicatedVertices.Add(vertexX);
+                    deduplicatedVertices.Add(vertexY);
+                    deduplicatedVertices.Add(vertexZ);
+
+                    deduplicatedColorData.Add(colorR);
+                    deduplicatedColorData.Add(colorG);
+                    deduplicatedColorData.Add(colorB);
+                }
+
+                deduplicatedIndices.Add(newIndex);
+            }
+
+            return new Mesh(deduplicatedVertices.ToArray(), deduplicatedIndices.ToArray(), deduplicatedColorData.ToArray(), shader);
+        }
+
+        public void AddMeshData(float[] vertices, uint[] indices, float[] colorData, Vector3 position)
+        {
+            //TODO: Not yet implemented
         }
     
     }

@@ -20,6 +20,8 @@ namespace KlipeioEngine
         private Vector3 _rotation = Vector3.Zero;
         private Vector3 _scale = Vector3.One;
 
+        private bool disposedValue;
+
         public Vector3 Position
         {
             get { return _position; }
@@ -83,11 +85,6 @@ namespace KlipeioEngine
             _isEnabled = isEnabled;
         }
 
-        public virtual void Dispose()
-        {
-
-        }
-
         public void SetPosition(Vector3 newPosition)
         {
             _position = newPosition;
@@ -120,7 +117,11 @@ namespace KlipeioEngine
                 _mesh.Draw(model, view, projection);
             }
         }
-
-
+        public void Dispose()
+        {
+            _mesh.Dispose();
+            _mesh = null;
+            _shader = null;
+        }
     }
 }

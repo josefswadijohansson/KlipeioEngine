@@ -15,59 +15,6 @@ namespace KlipeioEngine
         private Shader _shader;
         private Camera camera;
 
-        #region buffer objects
-
-        int _vertexBufferObject;
-        int _vertexArrayObject;
-        int _elementBufferObject; 
-
-        #endregion
-
-        /*#region cube data
-        
-        private float[] _vertices = 
-        {
-            -0.5f, -0.5f, -0.5f,
-             0.5f, -0.5f, -0.5f,
-             0.5f,  0.5f, -0.5f,
-            -0.5f,  0.5f, -0.5f,
-            -0.5f, -0.5f,  0.5f,
-             0.5f, -0.5f,  0.5f,
-             0.5f,  0.5f,  0.5f,
-            -0.5f,  0.5f,  0.5f
-        };
-
-        private uint[] _indices = //8 vertices list
-        {
-            //front face
-            //top triangle
-            0, 1, 2,
-            //bottom triangle
-            2, 3, 0,
-
-            //Right face
-            1, 5, 6,
-            6, 2, 1,
-
-            //Back face
-            5, 4, 7,
-            7, 6, 5,
-
-            //Left face
-            4, 0, 3,
-            3, 7, 4,
-
-            //Bottom face
-            3, 2, 7,
-            7, 6, 2,
-
-            //Top face
-            4, 5, 1,
-            1, 0, 4,
-        };
-
-        #endregion*/
-
         private static int _windowWidth;
         private static int _windowHeight;
 
@@ -109,48 +56,6 @@ namespace KlipeioEngine
             _cube2.color = Color4.Red;
             _cube2.SetPosition(new Vector3(1,0,0));
             
-            //Created the shader program
-            /*
-
-            //Generate a vertex array object
-            _vertexArrayObject = GL.GenVertexArray();   
-
-            //Generate a vertex buffer object
-            _vertexBufferObject = GL.GenBuffer();
-
-            //Generate the element array buffer object
-            _elementBufferObject = GL.GenBuffer();
-
-            //Bind the vertex array object
-            GL.BindVertexArray(_vertexArrayObject);     
-
-            //Bind the vertex buffer object
-            GL.BindBuffer(BufferTarget.ArrayBuffer, _vertexBufferObject);
-            //Pass the vertices data to the buffer
-            GL.BufferData(BufferTarget.ArrayBuffer, _vertices.Length * sizeof(float), _vertices, BufferUsageHint.StaticDraw);
-
-            //Retrieve the aPosition location index, that will later be passed to the vertex array object
-            int aPosLocation = _shader.GetAttribLocation("aPosition");
-            //Since i have now bound the vertices data, send the buffer data to the vertex array on location/index 0
-            GL.VertexAttribPointer(aPosLocation, 3, VertexAttribPointerType.Float, false, 3 * sizeof(float), 0);
-            //then enable location 0
-            GL.EnableVertexAttribArray(aPosLocation);
-
-            //Bind the element array buffer object
-            GL.BindBuffer(BufferTarget.ElementArrayBuffer, _elementBufferObject);
-
-            //Pass data to the bound element array buffer object
-            GL.BufferData(BufferTarget.ElementArrayBuffer, _indices.Length*sizeof(uint), _indices, BufferUsageHint.StaticDraw);  
-
-            //unbind the vertex buffer object
-            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-
-            //unbind the element array object
-            //GL.BindBuffer(BufferTarget.ElementArrayBuffer, 0);
-
-            //use the shader program to draw out the relevant data
-            _shader.Use();*/
-
             GL.Enable(EnableCap.DepthTest);
 
             CursorState = CursorState.Grabbed;
@@ -163,29 +68,14 @@ namespace KlipeioEngine
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
             
             //Code goes here.
-            _shader.Use();
 
-            //int vertexColorLocation = GL.GetUniformLocation(_shader.Handle, "ourColor");
-
-            //GL.Uniform4(vertexColorLocation, 1.0f, 0.0f, 0.0f, 1.0f);
-
-            //GL.BindVertexArray(_vertexArrayObject);
-
-            Matrix4 model = Matrix4.Identity;
             Matrix4 view = camera.GetViewMatrix();
             Matrix4 projection = camera.GetProjectionMatrix();
 
-            //_shader.SetMatrix4("model", model);
-            //_shader.SetMatrix4("view", view);
-            //_shader.SetMatrix4("projection", projection);
-
-            //GL.DrawElements(PrimitiveType.Triangles, _indices.Length, DrawElementsType.UnsignedInt, 0);
-            _cube1.Draw(model, view, projection);
-            _cube2.Draw(model, view, projection);
+            _cube1.Draw(view, projection);
+            _cube2.Draw(view, projection);
 
             Context.SwapBuffers();
-
-            GL.BindVertexArray(0);
 
             base.OnRenderFrame(args);
         }
@@ -212,9 +102,11 @@ namespace KlipeioEngine
         protected override void OnUnload()
         {
             base.OnUnload();
-            GL.DeleteBuffer(_vertexBufferObject);
             _shader.Dispose();
+
+            //TODO: Below needs to be made so i dispose all objects in the world.
             _cube1.Dispose();
+            _cube2.Dispose();
         }
     }
 }

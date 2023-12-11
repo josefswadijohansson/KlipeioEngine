@@ -7,6 +7,8 @@ using System;
 
 namespace KlipeioEngine
 {
+    //FIXME: Add so it instead is a general object class, so you can universally create whatever object(Sphere, hexagon, cube, cylinder, etc) and all of these properties will follow
+    
     public class Cube
     {
         #region cube data
@@ -112,12 +114,7 @@ namespace KlipeioEngine
             GL.BindVertexArray(0);
         }
 
-        private void InitializeShader()
-        {
-            _shader = new Shader("vertex.glsl", "fragment.glsl");
-        }
-
-        public void Draw(Matrix4 model, Matrix4 view, Matrix4 projection)
+        public void Draw(Matrix4 view, Matrix4 projection)
         {
             _shader.Use();
 

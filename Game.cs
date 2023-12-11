@@ -4,16 +4,13 @@ using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System;
+using System.Drawing;
 
 namespace KlipeioEngine
 {
     public class Game : GameWindow
     {
-        private List<GameObject> listOfGameObjects = new List<GameObject>();
-
-        private Cube _cube1;
-        private Cube _cube2;
-        private Sphere _sphere;
+        private static List<GameObject> _listOfGameObjects = new List<GameObject>();
 
         private Shader _shader;
         private Camera camera;
@@ -53,28 +50,60 @@ namespace KlipeioEngine
             camera = new Camera(new Vector3(0.0f, 0.0f, 3.0f));
             _shader = new Shader("vertex.glsl", "fragment.glsl");
 
-            listOfGameObjects = new List<GameObject>();
+            _listOfGameObjects = new List<GameObject>();
 
-            for(int i = 0; i < 10; i++)
+            List<GameObject> temp = new List<GameObject>();
+
+            int index = 0;
+
+            for(int x = 0; x < 100; x++)
             {
-                GameObject newCube = new GameObject(_shader, Cube._vertices, Cube._indices);
-                newCube.SetPosition(new Vector3(i, 0, 0));
-
-                if(i % 2 == 0)
+                for(int y = 0; y < 100; y++)
                 {
-                    newCube.mesh.Color = Color4.Blue;
+                    Color4 theColor = Color4.Black;
+                
+                    if(index % 2 == 0)
+                    {
+                        theColor = Color4.Blue;
+                    }
+                    else 
+                    {
+                        theColor = Color4.Red;
+                    }
 
-                    listOfGameObjects.Add(newCube);
-                }
-                else 
-                {
-                    newCube.mesh.Color = Color4.Red;
+                    GameObject newCube = new GameObject(_shader, Cube._vertices, theColor, Cube._indices);
+                    newCube.SetPosition(new Vector3(x, 0, y));
 
-                    listOfGameObjects.Add(newCube);
+                    temp.Add(newCube);
+                    index++;
                 }
             }
 
-            for(int i = 0; i < 10; i++)
+            /*for(int i = 0; i < 10000; i++)
+            {
+                Color4 theColor = Color4.Black;
+                
+                if(i % 2 == 0)
+                {
+                    theColor = Color4.Blue;
+                }
+                else 
+                {
+                    theColor = Color4.Red;
+                }
+
+                GameObject newCube = new GameObject(_shader, Cube._vertices, theColor, Cube._indices);
+                newCube.SetPosition(new Vector3(i, 0, 0));
+
+                temp.Add(newCube);
+            }*/
+
+            //_listOfGameObjects.AddRange(temp);
+            GameObject combinedGameObject = new GameObject(_shader, Mesh.CombineMeshes(temp.ToArray(), _shader));
+            combinedGameObject.mesh.Color = Color.Blue;
+            _listOfGameObjects.Add(combinedGameObject);
+
+            /*for(int i = 0; i < 10; i++)
             {
                 Sphere.GenerateSphere(1.0f, 8, out float[] vertices, out uint[] indices);
                 GameObject newSphere = new GameObject(_shader, vertices, indices);
@@ -84,25 +113,15 @@ namespace KlipeioEngine
                 {
                     newSphere.mesh.Color = Color4.Blue;
 
-                    listOfGameObjects.Add(newSphere);
+                    _listOfGameObjects.Add(newSphere);
                 }
                 else 
                 {
                     newSphere.mesh.Color = Color4.Red;
 
-                    listOfGameObjects.Add(newSphere);
+                    _listOfGameObjects.Add(newSphere);
                 }
-            }
-
-            
-            /*_cube1 = new Cube(_shader); //TODO: Make so the shader is already accessible in the cube.
-            _cube1.mesh.Color = Color4.Blue;
-            _cube2 = new Cube(_shader);
-            _cube2.mesh.Color = Color4.Red;
-            _cube2.SetPosition(new Vector3(1,0,0));
-
-            _sphere = new Sphere(_shader);
-            _sphere.SetPosition(new Vector3(-1, 0, 0));*/
+            }*/
             
             GL.Enable(EnableCap.DepthTest);
 
@@ -120,7 +139,7 @@ namespace KlipeioEngine
             Matrix4 view = camera.GetViewMatrix();
             Matrix4 projection = camera.GetProjectionMatrix();
 
-            foreach(GameObject gameObject in listOfGameObjects)
+            foreach(GameObject gameObject in _listOfGameObjects)
             {
                 gameObject.Draw(view, projection);
             }
@@ -146,7 +165,18 @@ namespace KlipeioEngine
 
             if(keyboard.IsKeyPressed(Keys.F1))
             {
-                //_cube1.SetEnabled(false);
+                GameObject g = GetGameobjectByID(12);
+                if(g.mesh.Color == Color4.Blue)
+                {
+                    Console.WriteLine("Color is blue");
+                    //g.SetEnabled(false);
+                }
+                else 
+                {
+                    Console.WriteLine("Color is not blue");
+                }
+                g.Translate(new Vector3(0,-1,0));
+                //DestroyObject(g);
             }
 
             //_cube.Translate(new Vector3(0.0f, 0.0f, 0.00001f));
@@ -160,17 +190,37 @@ namespace KlipeioEngine
             _shader.Dispose();
 
             //TODO: Below needs to be made so i dispose all objects in the world.
-            foreach(GameObject gameObject in listOfGameObjects)
+            foreach(GameObject gameObject in _listOfGameObjects)
             {
                 gameObject.Dispose();
                 
             }
 
-            listOfGameObjects.Clear();
+            _listOfGameObjects.Clear();
+        }
+    
+        public static GameObject GetGameobjectByID(uint id)
+        {
+            foreach(GameObject gameObject in _listOfGameObjects)
+            {
+                if(gameObject.ID == id)
+                {
+                    return gameObject;
+                }
+            }
 
-            //_cube1.Dispose();
-            //_cube2.Dispose();
-            //_sphere.Dispose();
+            return null;
+        }
+
+        public static uint GetUniqueID()
+        {
+            return (uint)_listOfGameObjects.Count;
+        }
+    
+        public static  void DestroyObject(GameObject gameObject)
+        {
+            _listOfGameObjects.RemoveAt((int)gameObject.ID);
+            gameObject.Dispose();   //FIXME: Maybe this isn't effienct, find a better way, maybe just dont showcase it
         }
     }
 }

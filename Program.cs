@@ -6,7 +6,7 @@ namespace KlipeioEngine
     {
         static void Main(string[] args)
         {
-            using(Game game = new Game("Klipeio Engine", 500, 500))
+            using(Game game = new Game("Klipeio Engine", 1024, 720))
             {
                 game.Run();
             }

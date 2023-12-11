@@ -21,19 +21,6 @@ namespace KlipeioEngine
             _mesh = new Mesh(_vertices, _indices, shader);
         }
 
-        /*public void Draw(Matrix4 view, Matrix4 projection)
-        {
-            if(this.Enabled == true)
-            {
-
-                Matrix4 model = Matrix4.CreateScale(Scale) 
-                                    * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(Rotation.X)) * Matrix4.CreateRotationY(MathHelper.DegreesToRadians(Rotation.Y)) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(Rotation.Z)) 
-                                    * Matrix4.CreateTranslation(Position);
-
-                _mesh.Draw(model, view, projection);
-            }
-        }*/
-
         public static void GenerateSphere(float radius, int segments, out float[] vertices, out uint[] indices)
         {
             vertices = new float[(segments + 1) * (segments + 1) * 3];

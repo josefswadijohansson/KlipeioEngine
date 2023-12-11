@@ -68,34 +68,5 @@ namespace KlipeioEngine
 
             //_mesh = new Mesh(_vertices, _indices, shader);
         }
-
-        /*public void Draw(Matrix4 view, Matrix4 projection)
-        {
-            if(this.Enabled == true)
-            {
-
-                /*_shader.Use();
-
-                int vertexColorLocation = GL.GetUniformLocation(_shader.Handle, "ourColor");
-
-                GL.Uniform4(vertexColorLocation, color);
-
-                GL.BindVertexArray(_vertexArrayObject);
-                
-                Matrix4 model = Matrix4.CreateScale(Scale) 
-                                    * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(Rotation.X)) * Matrix4.CreateRotationY(MathHelper.DegreesToRadians(Rotation.Y)) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(Rotation.Z)) 
-                                    * Matrix4.CreateTranslation(Position);
-
-                /*_shader.SetMatrix4("model", model);
-                _shader.SetMatrix4("view", view);
-                _shader.SetMatrix4("projection", projection);
-
-                GL.DrawElements(PrimitiveType.Triangles, _indices.Length, DrawElementsType.UnsignedInt, 0);
-
-                GL.BindVertexArray(0);
-                //_mesh.Draw(model, view, projection);
-            }
-        }
-        */
     }
 }

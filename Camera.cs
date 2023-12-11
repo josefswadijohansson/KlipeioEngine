@@ -44,7 +44,7 @@ namespace KlipeioEngine
 
         public Matrix4 GetProjectionMatrix()
         {
-            return Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(45.0f), Game.WindowWidth / Game.WindowHeight, 0.1f, 100.0f);
+            return Matrix4.CreatePerspectiveFieldOfView(MathHelper.DegreesToRadians(45.0f), Game.WindowWidth / Game.WindowHeight, 0.1f, 1000.0f);
         }
 
         public void SetPosition(Vector3 newPos)

@@ -9,13 +9,10 @@ namespace KlipeioEngine
 {
     public class GameObject
     {
+        private uint _id;
+
         private Shader _shader;
         private Mesh _mesh;
-
-        public Mesh mesh
-        {
-            get{ return _mesh;}
-        }
 
         private bool _isEnabled = true;
 
@@ -37,6 +34,16 @@ namespace KlipeioEngine
         {
             get { return _scale; }
         }
+        
+        public Mesh mesh
+        {
+            get{ return _mesh;}
+        }
+
+        public uint ID
+        {
+            get { return _id; }
+        }
 
         public bool Enabled 
         { 
@@ -46,19 +53,30 @@ namespace KlipeioEngine
         public GameObject(Shader shader)
         {
             _shader = shader;
+            this._id = Game.GetUniqueID();
         }
 
         public GameObject(Shader shader, Mesh mesh)
         {
+            this._id = Game.GetUniqueID();
             _shader = shader;
             _mesh = mesh;
         }
 
         public GameObject(Shader shader, float[] vertices, uint[] indices)
         {
+            this._id = Game.GetUniqueID();
             _shader = shader;
             _mesh = new Mesh(vertices, indices, shader);
         }
+
+        public GameObject(Shader shader, float[] vertices, Color4 color, uint[] indices)
+        {
+            this._id = Game.GetUniqueID();
+            _shader = shader;
+            _mesh = new Mesh(vertices, indices, color, shader);
+        }
+
 
         public virtual void SetEnabled(bool isEnabled)
         {

@@ -8,11 +8,13 @@ using System;
 namespace KlipeioEngine
 {
     //FIXME: Add so it instead is a general object class, so you can universally create whatever object(Sphere, hexagon, cube, cylinder, etc) and all of these properties will follow
-    
-    public class Cube
+
+    public class Cube : GameObject
     {
+        public Mesh _mesh;
+
         #region cube data
-        private float[] _vertices = 
+        private readonly float[] _vertices = 
         {
             -0.5f, -0.5f, -0.5f,
              0.5f, -0.5f, -0.5f,
@@ -24,7 +26,7 @@ namespace KlipeioEngine
             -0.5f,  0.5f,  0.5f
         };
 
-        private uint[] _indices = //8 vertices list
+        private readonly uint[] _indices = //8 vertices list
         {
             //front face
             //top triangle
@@ -55,30 +57,15 @@ namespace KlipeioEngine
 
         #endregion
 
+        #region buffer objects
+
         private int _vertexArrayObject;
         private int _vertexBufferObject;
         private int _elementBufferObject;
 
-        private Vector3 _position = Vector3.Zero;
-        private Vector3 _rotation = Vector3.Zero;
-        private Vector3 _scale = Vector3.One;
-
+        #endregion
+        
         private Shader _shader;
-
-        public Vector3 Position
-        {
-            get { return _position; }
-        }
-
-        public Vector3 Rotation
-        {
-            get { return _rotation; }
-        }
-
-        public Vector3 Scale
-        {
-            get { return _scale; }
-        }
 
         public Color4 color
         {
@@ -89,8 +76,9 @@ namespace KlipeioEngine
         {
             _shader = shader;
 
+            _mesh = new Mesh(_vertices, _indices, shader);
             // Initialize buffers and shaders
-            InitializeBuffers();
+            //InitializeBuffers();
         }
 
         private void InitializeBuffers()
@@ -116,25 +104,30 @@ namespace KlipeioEngine
 
         public void Draw(Matrix4 view, Matrix4 projection)
         {
-            _shader.Use();
+            if(this.Enabled == true)
+            {
 
-            int vertexColorLocation = GL.GetUniformLocation(_shader.Handle, "ourColor");
+                /*_shader.Use();
 
-            GL.Uniform4(vertexColorLocation, color);
+                int vertexColorLocation = GL.GetUniformLocation(_shader.Handle, "ourColor");
 
-            GL.BindVertexArray(_vertexArrayObject);
-            
-            Matrix4 modelMatrix = Matrix4.CreateScale(_scale) 
-                                  * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(_rotation.X)) * Matrix4.CreateRotationY(MathHelper.DegreesToRadians(_rotation.Y)) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(_rotation.Z)) 
-                                  * Matrix4.CreateTranslation(_position);
+                GL.Uniform4(vertexColorLocation, color);
 
-            _shader.SetMatrix4("model", modelMatrix);
-            _shader.SetMatrix4("view", view);
-            _shader.SetMatrix4("projection", projection);
+                GL.BindVertexArray(_vertexArrayObject);*/
+                
+                Matrix4 model = Matrix4.CreateScale(Scale) 
+                                    * Matrix4.CreateRotationX(MathHelper.DegreesToRadians(Rotation.X)) * Matrix4.CreateRotationY(MathHelper.DegreesToRadians(Rotation.Y)) * Matrix4.CreateRotationZ(MathHelper.DegreesToRadians(Rotation.Z)) 
+                                    * Matrix4.CreateTranslation(Position);
 
-            GL.DrawElements(PrimitiveType.Triangles, _indices.Length, DrawElementsType.UnsignedInt, 0);
+                /*_shader.SetMatrix4("model", model);
+                _shader.SetMatrix4("view", view);
+                _shader.SetMatrix4("projection", projection);
 
-            GL.BindVertexArray(0);
+                GL.DrawElements(PrimitiveType.Triangles, _indices.Length, DrawElementsType.UnsignedInt, 0);
+
+                GL.BindVertexArray(0);*/
+                _mesh.Draw(model, view, projection);
+            }
         }
 
         public void Dispose()
@@ -144,25 +137,5 @@ namespace KlipeioEngine
             _shader.Dispose();
         }
 
-        public void SetPosition(Vector3 newPos)
-        {
-            _position = newPos;
-        }
-        
-        public void Translate(Vector3 translate)
-        {
-            _position += translate;
-        }
-
-        public void SetRotation(Vector3 newRotation)
-        {
-            _rotation = newRotation;
-        }
-
-        public void SetScale(Vector3 newScale)
-        {
-            _scale = newScale;
-        }
-    
     }
 }

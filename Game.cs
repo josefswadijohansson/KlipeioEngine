@@ -9,6 +9,8 @@ namespace KlipeioEngine
 {
     public class Game : GameWindow
     {
+        private List<GameObject> listOfGameObjects = new List<GameObject>();
+
         private Cube _cube1;
         private Cube _cube2;
 
@@ -50,17 +52,24 @@ namespace KlipeioEngine
             camera = new Camera(new Vector3(0.0f, 0.0f, 3.0f));
             _shader = new Shader("vertex.glsl", "fragment.glsl");
 
+            listOfGameObjects = new List<GameObject>();
+
+            /*Cube newCube = new Cube(_shader);
+            newCube._mesh.Color = Color4.Blue;
+
+            listOfGameObjects.Add();*/
+
             _cube1 = new Cube(_shader); //TODO: Make so the shader is already accessible in the cube.
-            _cube1.color = Color4.Blue;
+            _cube1._mesh.Color = Color4.Blue;
             _cube2 = new Cube(_shader);
-            _cube2.color = Color4.Red;
+            _cube2._mesh.Color = Color4.Red;
             _cube2.SetPosition(new Vector3(1,0,0));
             
             GL.Enable(EnableCap.DepthTest);
 
             CursorState = CursorState.Grabbed;
         }
-
+        
         protected override void OnRenderFrame(FrameEventArgs args)
         {
             GL.ClearColor(0.5f, 0.5f, 1.0f, 1.0f);
@@ -92,6 +101,11 @@ namespace KlipeioEngine
             if(keyboard.IsKeyPressed(Keys.Escape))
             {
                 Close();
+            }
+
+            if(keyboard.IsKeyPressed(Keys.F1))
+            {
+                _cube1.SetEnabled(false);
             }
 
             //_cube.Translate(new Vector3(0.0f, 0.0f, 0.00001f));

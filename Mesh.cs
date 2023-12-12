@@ -44,6 +44,14 @@ namespace KlipeioEngine
             set { _color = value; }
         }
 
+        public Mesh(Shader shader)
+        {
+            _shader = shader;
+            _vertices = new float[0];
+            _indices = new uint[0];
+            _colorData = new float[0];
+        }
+
         public Mesh(float[] vertices, uint[] indicies, Shader shader)
         {
             this._vertices = vertices;
@@ -90,7 +98,7 @@ namespace KlipeioEngine
             InitializeBuffers();
         } 
 
-        private void InitializeBuffers()
+        public void InitializeBuffers()
         {
             _vertexArrayObject = GL.GenVertexArray();
             GL.BindVertexArray(_vertexArrayObject);
@@ -197,6 +205,46 @@ namespace KlipeioEngine
             return new Mesh(combinedVertices, combinedIndices, colorData.ToArray(), shader);
         }
 
+        public static Mesh CombineMeshes(MeshData[] meshDatas, Shader shader, float[] vertices, uint[] indices)
+        {
+            List<float> combinedVertices = new List<float>();
+            List<uint> combinedIndices = new List<uint>();
+            List<float> combinedColorData = new List<float>();
+
+            int currentIndexOffset = 0;
+
+            foreach(MeshData meshData in meshDatas)
+            {
+                Vector3 position = meshData.position;
+                Color4 mesh_color = meshData.color4;
+
+                //Add code here
+
+                for(int i = 0; i < vertices.Length; i++)
+                {
+                    combinedVertices.Add(vertices[i] + position.X);
+                    combinedColorData.Add(mesh_color.R);
+                    i++;
+                    combinedVertices.Add(vertices[i] + position.Y);
+                    combinedColorData.Add(mesh_color.G);
+                    i++;
+                    combinedVertices.Add(vertices[i] + position.Z);
+                    combinedColorData.Add(mesh_color.B);
+                }
+
+                for (int i = 0; i < indices.Length; i++)
+                {
+                    combinedIndices.Add((uint)(indices[i] + currentIndexOffset));
+                }
+
+                currentIndexOffset += vertices.Length / 3;
+            }
+            
+            //return DeduplicateMesh(new Mesh(combinedVertices, combinedIndices, colorData.ToArray(), shader), shader);
+
+            return new Mesh(combinedVertices.ToArray(), combinedIndices.ToArray(), combinedColorData.ToArray(), shader);
+        }
+
         /// <summary>
         /// This will assign the a color to the whole mesh
         /// Dont use this if you want to preserve the color of the a complicated mesh
@@ -263,8 +311,65 @@ namespace KlipeioEngine
 
         public void AddMeshData(float[] vertices, uint[] indices, float[] colorData, Vector3 position)
         {
-            //TODO: Not yet implemented
+            List<float> totalVertices = new List<float>(_vertices);
+            List<uint> totalIndices = new List<uint>(_indices);
+            List<float> totalColorData = new List<float>(_colorData);
+
+            // Apply the position offset to each vertex
+            for (int i = 0; i < vertices.Length; i += 3)
+            {
+                totalVertices.Add(vertices[i] + position.X);
+                totalVertices.Add(vertices[i + 1] + position.Y);
+                totalVertices.Add(vertices[i + 2] + position.Z);
+                totalColorData.AddRange(colorData);
+            }
+
+            // Append the indices to the existing list
+            uint indexOffset = (uint)(totalVertices.Count / 3) - (uint)(vertices.Length / 3);
+            foreach (uint index in indices)
+            {
+                totalIndices.Add(index + indexOffset);
+            }
+
+            _vertices = totalVertices.ToArray();
+            _colorData = totalColorData.ToArray();
+            _indices = totalIndices.ToArray();
         }
     
+        public static MeshData[] ConvertTo1D(MeshData[,] meshDatas)
+        {
+            int rows = meshDatas.GetLength(0);
+            int columns = meshDatas.GetLength(1);
+
+            // Calculate the total number of elements
+            int totalElements = rows * columns;
+
+            // Create a 1D array with the same number of elements
+            MeshData[] oneDArray = new MeshData[totalElements];
+
+            // Copy elements from the 2D array to the 1D array
+            int index = 0;
+            for (int i = 0; i < rows; i++)
+            {
+                for (int j = 0; j < columns; j++)
+                {
+                    oneDArray[index++] = meshDatas[i, j];
+                }
+            }
+
+            return oneDArray;
+        }
+    }
+
+    public struct MeshData
+    {
+        public Vector3 position;
+        public Color4 color4;
+
+        public MeshData(Vector3 pos, Color4 col)
+        {
+            this.position = pos;
+            this.color4 = col;
+        }
     }
 }

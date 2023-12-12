@@ -14,7 +14,7 @@ namespace KlipeioEngine
         private Mesh _mesh;
 
         #region cube data
-        public static readonly float[] _vertices = 
+        public static readonly float[] Vertices = 
         {
             -0.5f, -0.5f, -0.5f,
              0.5f, -0.5f, -0.5f,
@@ -26,7 +26,7 @@ namespace KlipeioEngine
             -0.5f,  0.5f,  0.5f
         };
 
-        public static readonly uint[] _indices = //8 vertices list
+        public static readonly uint[] Indices = //8 vertices list
         {
             //front face
             //top triangle

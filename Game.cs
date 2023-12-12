@@ -4,6 +4,7 @@ using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 using System;
+using System.Diagnostics;
 using System.Drawing;
 
 namespace KlipeioEngine
@@ -55,13 +56,13 @@ namespace KlipeioEngine
 
             _listOfGameObjects = new List<GameObject>();
 
-            List<GameObject> temp = new List<GameObject>();
+            int world_size = 1000; 
 
-            int index = 0;
+            MeshData[,] meshDatas = new MeshData[world_size, world_size];
 
-            for(int x = 0; x < 200; x++)
+            for(int x = 0; x < world_size; x++)
             {
-                for(int y = 0; y < 200; y++)
+                for(int y = 0; y < world_size; y++)
                 {
                     Color4 theColor = Color4.Black;
                 
@@ -74,7 +75,70 @@ namespace KlipeioEngine
                         theColor = Color4.Red;
                     }
 
-                    GameObject newCube = new GameObject(_shader, Cube._vertices, theColor, Cube._indices);  //FIXME: IDK This uses a lot of data, maybe instead just make all vertices, indices and color data here.
+                    meshDatas[x,y] = new MeshData(new Vector3(x, 0, y), theColor);
+
+                    //newMesh.AddMeshData(Cube.Vertices, Cube.Indices, new float[]{ theColor.R, theColor.G, theColor.B}, new Vector3(x, 0, y));
+                }
+            }
+
+            MeshData[] data = Mesh.ConvertTo1D(meshDatas);
+            GameObject combinedGameObject = new GameObject(_shader, Mesh.CombineMeshes(data, _shader, Cube.Vertices, Cube.Indices));
+
+            data = new MeshData[0];
+            meshDatas = new MeshData[0,0];
+            _listOfGameObjects.Add(combinedGameObject);
+
+            GC.Collect();
+            //GameObject gameObject = new GameObject(_shader, newMesh);
+
+            //_listOfGameObjects.Add(gameObject);
+
+            /*int world_size = 200; //TODO: This is taking a lot of time to calculate
+
+            Mesh newMesh = new Mesh(_shader);
+
+            for(int x = 0; x < world_size; x++)
+            {
+                for(int y = 0; y < world_size; y++)
+                {
+                    Color4 theColor = Color4.Black;
+                
+                    if((x / 1 + y / 1) % 2 == 0)
+                    {
+                        theColor = Color4.Blue;
+                    }
+                    else 
+                    {
+                        theColor = Color4.Red;
+                    }
+
+                    newMesh.AddMeshData(Cube.Vertices, Cube.Indices, new float[]{ theColor.R, theColor.G, theColor.B}, new Vector3(x, 0, y));
+                }
+            }
+            GameObject gameObject = new GameObject(_shader, newMesh);
+
+            _listOfGameObjects.Add(gameObject);*/
+
+            /*List<GameObject> temp = new List<GameObject>();
+
+            int index = 0;
+
+            for(int x = 0; x < 500; x++)
+            {
+                for(int y = 0; y < 500; y++)
+                {
+                    Color4 theColor = Color4.Black;
+                
+                    if((x / 1 + y / 1) % 2 == 0)
+                    {
+                        theColor = Color4.Blue;
+                    }
+                    else 
+                    {
+                        theColor = Color4.Red;
+                    }
+
+                    GameObject newCube = new GameObject(_shader, Cube.Vertices, theColor, Cube.Indices);  //FIXME: IDK This uses a lot of data, maybe instead just make all vertices, indices and color data here.
                     newCube.SetPosition(new Vector3(x, 0, y));
 
                     temp.Add(newCube);
@@ -84,7 +148,7 @@ namespace KlipeioEngine
 
             GameObject combinedGameObject = new GameObject(_shader, Mesh.CombineMeshes(temp.ToArray(), _shader));   
             combinedGameObject.mesh.Color = Color.Blue;
-            _listOfGameObjects.Add(combinedGameObject);
+            _listOfGameObjects.Add(combinedGameObject);*/
 
             GL.Enable(EnableCap.DepthTest);
 
@@ -162,7 +226,9 @@ namespace KlipeioEngine
                 double fps = _frameCount / _totalTime;
 
                 // Display FPS or use it as needed
-                UpdateWindowTitle($"Klipeio Engine | FPS: {fps:F1} | Memory: {GC.GetTotalMemory(true) / (1024.0 * 1024.0):F2} MB");
+                Process currentProcess = Process.GetCurrentProcess();
+
+                UpdateWindowTitle($"Klipeio Engine | FPS: {fps:F1} | Memory: {currentProcess.WorkingSet64 / (1024.0 * 1024.0):F2} MB");
 
                 // Reset counters for the next second
                 _totalTime = 0.0;

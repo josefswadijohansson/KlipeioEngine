@@ -62,7 +62,7 @@ namespace KlipeioEngine
         {
             this._id = Game.GetUniqueID();
             _shader = shader;
-            _mesh = mesh;
+            _mesh = new Mesh(mesh.Vertices, mesh.Indices, mesh.ColorData, shader);
         }
 
         public GameObject(Shader shader, float[] vertices, uint[] indices)
